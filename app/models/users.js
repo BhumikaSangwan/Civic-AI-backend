@@ -22,21 +22,9 @@ const schema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    phoneNumber: {
-        type: String,
-        required: true,
-    },
-    countryCode: {
-        type: String,
-        required: true,
-    },
     status: {
         type: Number,
         default: status.active,
-    },
-    courtId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
     },
     profile: {
         type: String,
@@ -66,6 +54,5 @@ const schema = new mongoose.Schema({
 
 schema.index({ id: 1 }, { background: true, unique: true });
 schema.index({ email: 1 }, { background: true, unique: true });
-schema.index({ phoneNumber: 1 }, { background: true, unique: true });
 const model = mongoose.model("user", schema);
 export default model;

@@ -1,14 +1,10 @@
 import { Router } from "express";
 import api from './api/index.js';
-import signature from './signatures.js';
-import template from './templates.js';
 import { loginUser } from "../controller/userController.js";
 import { checkLoginStatus } from "../middleware/checkAuth.js";
 
 const router = Router();
 router.use('/api', api);
-router.use('/signatures', signature);
-router.use(['/template', '/templates'], template);
 
 router.post('/login', async (req, res, next) => {
     try {
@@ -29,7 +25,6 @@ router.get('/session', checkLoginStatus, async (req, res, next) => {
             role: req.session.role,
             name: req.session.name,
             userId: req.session.userId,
-            phoneNumber: req.session.phoneNumber,
         }
         return res.json(sessionObj);
     } catch (error) {

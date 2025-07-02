@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 
 export const sendNewUserEmail = (email, password) => {
-    const message = `Please use Email: ${email} and password: ${password} for login.`;
+    const message = `Please use Email: ${email} and password: ${password} for Civic AI login.`;
     transporter.sendMail({
         subject: "New Account",
         text: message,

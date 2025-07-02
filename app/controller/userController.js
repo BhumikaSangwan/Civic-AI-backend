@@ -18,8 +18,6 @@ export const loginUser = async (req, res) => {
     req.session.email = user.email;
     req.session.role = user.role;
     req.session.name = user.name;
-    req.session.courtId = user.courtId;
-    req.session.phoneNumber = user.phoneNumber;
     req.session._internal = {};
     return res.json({ message: 'success' });
 }

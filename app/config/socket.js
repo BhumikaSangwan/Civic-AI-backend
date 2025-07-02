@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
 import redis from './redis.js';
 
+
 const pubClient = redis.duplicate();
 const subClient = pubClient.duplicate();
 
@@ -31,4 +32,11 @@ export function createSocketServer(server) {
 }
 
 
-export default { io };
+// export default { io };
+
+export function getIO() {
+    if (!io) {
+        throw new Error("Socket.io not initialized");
+    }
+    return io;
+}

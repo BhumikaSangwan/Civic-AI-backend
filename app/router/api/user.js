@@ -1,130 +1,44 @@
 import { Router } from "express";
-import { userServices, courtServices } from "../../services/index.js";
+import { userServices } from "../../services/index.js";
 import { roles, status } from "../../constants/index.js";
 import { checkLoginStatus } from "../../middleware/checkAuth.js";
 import { checkAdmin } from "../../middleware/checkAdmin.js";
 import { UserCreationSchema, UserUpdateSchema } from "../../schema/user.js";
 import { bcryptPass, generatePassword } from "../../libs/encryption.js";
 import { sendNewUserEmail } from "../../libs/communication.js";
+
 const router = Router();
 
-router.get("/", checkLoginStatus, checkAdmin, async (req, res, next) => {
+router.get("/listUsers", checkLoginStatus, checkAdmin, async (req, res, next) => {
   try {
     const users = await userServices
       .find(
         {
           status: status.active,
-          role: { $in: [roles.reader, roles.officer] },
+          role: roles.user,
         },
         {
           id: 1,
           name: 1,
-          role: 1,
           email: 1,
-          phoneNumber: 1,
-          countryCode: 1,
-          profile: 1,
-          courtId: 1,
+          role: 1,
         },
         {}
       )
-      .populate({
-        path: "courtId",
-        model: "court",
-        localField: "courtId",
-        foreignField: "id",
-      });
+      
     return res.json(users);
   } catch (error) {
     next(error);
   }
 });
 
-router.get(
-  "/:courtId",
-  checkLoginStatus,
-  checkAdmin,
-  async (req, res, next) => {
-    try {
-      const courtId = req.params.courtId;
-      const users = await userServices
-        .find(
-          {
-            courtId: courtId,
-            status: status.active,
-          },
-          {
-            name: 1,
-            id: 1,
-            role: 1,
-            email: 1,
-            phoneNumber: 1,
-            countryCode: 1,
-            profile: 1,
-            courtId: 1,
-          },
-          {}
-        )
-        .populate({
-          path: "courtId",
-          model: "court",
-          localField: "courtId",
-          foreignField: "id",
-        });
-      return res.json(users);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.get(
-  "/:courtId/:userId",
-  checkLoginStatus,
-  checkAdmin,
-  async (req, res, next) => {
-    try {
-      const { courtId, userId } = req.params;
-      const userObj = await userServices.findOne(
-        {
-          courtId: courtId,
-          userId: userId,
-        },
-        {},
-        {}
-      );
-      if (!userObj) {
-        return res.status(404).json({
-          error: "User not found",
-        });
-      }
-      return res.json(userObj);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
 
 router.post(
-  "/:courtId",
+  "/newUser",
   checkLoginStatus,
   checkAdmin,
   async (req, res, next) => {
     try {
-      const courtId = req.params.courtId;
-      const courtObj = await courtServices.findOne(
-        {
-          id: courtId,
-          status: status.active,
-        },
-        {},
-        {}
-      );
-      if (!courtObj) {
-        return res.status(404).json({
-          error: "Court not found",
-        });
-      }
       const body = await UserCreationSchema.safeParseAsync(req.body);
       if (!body.success) {
         return res.status(400).json({
@@ -135,36 +49,37 @@ router.post(
       const userObj = body.data;
       userObj.createdBy = req.session.userId;
       userObj.updatedBy = req.session.userId;
+      userObj.role = roles.user;
+      userObj.status = status.active;
       const password = generatePassword(10);
       sendNewUserEmail(userObj.email, password);
       userObj.password = await bcryptPass(password);
-      userObj.courtId = courtObj.id;
       const user = await userServices.save(userObj);
-      return res.json({
-        id: user.id,
-      });
+      return res.json({ id: user.id, email: user.email, name: user.name });
     } catch (error) {
       next(error);
     }
   }
 );
 
-router.patch(
-  "/:courtId/:userId",
+router.post(
+  "/updateUser/:userId",
   checkLoginStatus,
   checkAdmin,
   async (req, res, next) => {
     try {
-      const { courtId, userId } = req.params;
+      console.log("updateUser");
+      const {  userId } = req.params;
       const body = await UserUpdateSchema.safeParseAsync(req.body);
       if (body.error) {
+        console.log("update user error : ", body.error);
         return res.status(400).json({
           error: `Payload is not valid`,
           detail: body.error,
         });
       }
       const userObj = await userServices.findOne(
-        { id: userId, courtId: courtId, status: status.active },
+        { id: userId, status: status.active },
         {},
         {}
       );
@@ -176,13 +91,14 @@ router.patch(
       const updatedObj = await userServices.updateOne(
         {
           id: userId,
-          courtId: courtId,
         },
         { $set: body.data },
         {}
       );
       return res.json({
         id: userObj.id,
+        name: updatedObj.name,
+        email: updatedObj.email,
       });
     } catch (error) {
       next(error);
@@ -191,16 +107,15 @@ router.patch(
 );
 
 router.delete(
-  "/:courtId/:userId",
+  "/:userId",
   checkLoginStatus,
   checkAdmin,
   async (req, res, next) => {
     try {
-      const { courtId, userId } = req.params;
+      const { userId } = req.params;
       const userObj = await userServices.findOne(
         {
           id: userId,
-          courtId: courtId,
         },
         {},
         {}
@@ -214,12 +129,10 @@ router.delete(
       await userServices.updateOne(
         {
           id: userId,
-          courtId: courtId,
         },
         {
           $set: {
             email: `${userObj.email}-Deleted-${Date.now()}`,
-            phoneNumber: `${userObj.phoneNumber}-Deleted-${Date.now()}`,
             deletedBy: req.session.userId,
             status: status.deleted,
           },
@@ -234,5 +147,7 @@ router.delete(
     }
   }
 );
+
+
 
 export default router;

@@ -10,8 +10,7 @@ export const findOne = (criteria, projection, options = {}) => {
     return model.findOne(criteria, projection, options);
 }
 
-export const updateOne = (criteria, updateObj, options = {}) => {
-    
+export const updateOne = (criteria, updateObj, options = {}) => {   
     return model.findOneAndUpdate(criteria, updateObj, { ...options, lean: true, new: true});
 }
 

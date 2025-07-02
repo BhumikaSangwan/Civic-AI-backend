@@ -1,19 +1,16 @@
 import * as userService from './users.js';
-import * as courtService from './courts.js';
-import * as signatureService from './signature.js';
-import * as templateService from './templates.js';
-import * as dispatchService from './dispatchIndex.js';
+import * as requestService from './request.js'
+import * as pdfService from './pdf.js'
+import * as analyzeService from './analyzer.js'
 
 export const userServices = userService;
-export const courtServices = courtService
-export const signatureServices = signatureService;
-export const templateServices = templateService;
-export const dispatchServices = dispatchService;
+export const requestServices = requestService
+export const pdfServices = pdfService
+export const analyzeServices = analyzeService
 
 export default {
     userServices: userService,
-    courtServices: courtService,
-    templateServices: templateService,
-    signatureServices: signatureService,
-    dispatchServices: dispatchService,
+    requestServices: requestService,
+    pdfServices: pdfService,
+    analyzeServices: analyzeService
 }
