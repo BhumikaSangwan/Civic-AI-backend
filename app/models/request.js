@@ -46,9 +46,18 @@ const schema = new mongoose.Schema({
                     type: String,
                     required: true,
                 },
+                imageUrl: {
+                    type: String,
+                    required: true
+                },
                 problems: {
                     type: [
-                        {
+                        {   
+                            id: {
+                              type: mongoose.Schema.Types.ObjectId,
+                              required: true  ,
+                              default: () => new mongoose.Types.ObjectId(),
+                            },
                             category: {
                                 type: [String],
                                 required: true,

@@ -59,12 +59,15 @@ export const save = (saveObj) => {
 }
 
 export const saveAnalyzedDocumentsToDB = (reqId, analyzedDocs) => {
-    console.log("analyzed docs : ", analyzedDocs);
+    console.log("analyzed docs length : ", analyzedDocs.length);
+    // console.log("documents : ", analyzedDocs);
     if (!Array.isArray(analyzedDocs)) {
         throw new Error("Expected analyzedDocs to be an array");
     }
     return updateOne(
         { id: reqId },
-        { $push: { documents: { $each: analyzedDocs } } }
+        { $push: { documents: { $each: analyzedDocs } }, 
+          $inc: { docCount: analyzedDocs.length }
+        }
     );
 }

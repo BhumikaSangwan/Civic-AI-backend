@@ -22,21 +22,24 @@ export function createSocketServer(server) {
     });
 
     io.on("connection", (socket) => {
-        if (!socket.request.session.userId) {
-            return socket.disconnect();
-        }
-        socket.join(socket.request.session.userId);
-    });
+    console.log(" New socket connection:", socket.id);
 
-    return io;
-}
+    const session = socket.request.session;
 
-
-// export default { io };
-
-export function getIO() {
-    if (!io) {
-        throw new Error("Socket.io not initialized");
+    if (!session?.userId) {
+      console.log(" No session.userId found, disconnecting...");
+      return socket.disconnect();
     }
-    return io;
+
+    console.log(" User authenticated with session.userId:", session.userId);
+
+    // Optionally join room based on userId for private emits
+    socket.join(session.userId);
+
+  });
+   
+  return io;
 }
+
+
+export default { io };

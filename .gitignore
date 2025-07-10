@@ -1,5 +1,5 @@
 node_modules
-
+.env
 data/document/*
 data/signature/*
 data/document_tar/*

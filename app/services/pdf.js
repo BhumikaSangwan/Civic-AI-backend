@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import pdfPoppler from 'pdf-poppler'; 
-
+import { randomUUID } from 'crypto';
 
 export const convertPdfToImages = async ({ pdfPath, outputDir }) => {
 
@@ -13,10 +13,12 @@ export const convertPdfToImages = async ({ pdfPath, outputDir }) => {
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
+    const uuidPrefix = `page-${randomUUID()}`;
+
     const options = {
         format: 'jpeg',
         out_dir: outputDir,
-        out_prefix: 'page',
+        out_prefix: uuidPrefix,
         page: null
     };
 

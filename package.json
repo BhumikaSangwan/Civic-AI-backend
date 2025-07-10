@@ -18,6 +18,7 @@
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "connect-redis": "^8.0.2",
+    "crypto": "^1.0.1",
     "docxtemplater": "^3.61.1",
     "docxtemplater-image-module": "^3.1.0",
     "docxtemplater-image-module-free": "^1.1.1",
